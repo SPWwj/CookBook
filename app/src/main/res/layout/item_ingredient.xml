@@ -8,24 +8,25 @@
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/item_layout_ingredient">
 
         <ImageView
                 android:id="@+id/ingredient_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:scaleType="centerCrop"
-                android:layout_alignParentLeft="true"/>
+                android:contentDescription="@string/dishes_ingredient_image"/>
 
         <TextView
                 android:id="@+id/ingredient_name"
-                style="@style/TextAppearance.AppCompat.Medium"
+                style="@style/TextAppearance.AppCompat.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/ingredient_image"
-                android:layout_marginLeft="16dp"
+                android:layout_toEndOf="@+id/ingredient_image"
+                android:layout_marginStart="16dp"
                 android:paddingTop="20dp"
                 android:lines="2"
                 android:text="title" />

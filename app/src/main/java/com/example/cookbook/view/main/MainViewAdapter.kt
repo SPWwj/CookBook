@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import com.example.cookbook.data.model.DishesModel
 import com.example.cookbook.R
 import com.example.cookbook.utils.Constants
@@ -16,49 +18,73 @@ import com.example.cookbook.view.detail.DetailActivity
 import com.jakewharton.picasso.OkHttp3Downloader
 
 
-internal class MainViewAdapter(private val context: Context, private val dataList: List<DishesModel.Recipe>) :
-    androidx.recyclerview.widget.RecyclerView.Adapter<MainViewAdapter.MainViewHolder>() {
+class MainViewAdapter : PagedListAdapter<DishesModel.Dishes, MainViewAdapter.MainViewHolder>(diffCallback) {
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder =
+          MainViewHolder(parent)
 
-    internal inner class MainViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
-
-        var txtTitle: TextView = mView.findViewById(R.id.title)
-        val coverImage: ImageView = mView.findViewById(R.id.coverImage)
-
+      override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
+        holder.bindTo(getItem(position))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.custom_row, parent, false)
-        return MainViewHolder(view)
-    }
 
-    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        holder.txtTitle.text = dataList[position].dishes.name
+    companion object {
+        /**
+         * This diff callback informs the PagedListAdapter how to compute list differences when new
+         * PagedLists arrive.
+         * <p>
+         * When you add a Cheese with the 'Add' button, the PagedListAdapter uses diffCallback to
+         * detect there's only a single item difference from before, so it only needs to animate and
+         * rebind a single view.
+         *
+         * @see android.support.v7.util.DiffUtil
+         */
+        private val diffCallback = object : DiffUtil.ItemCallback<DishesModel.Dishes>() {
+            override fun areItemsTheSame(oldItem: DishesModel.Dishes, newItem: DishesModel.Dishes): Boolean =
+                oldItem.DishesID == newItem.DishesID
 
-        val builder = Picasso.Builder(context)
-        builder.downloader(OkHttp3Downloader(context))
-        builder.build().load(dataList[position].dishes.image)
-            .placeholder(R.drawable.ic_launcher_background)
-            .error(R.drawable.ic_launcher_background)
-            .into(holder.coverImage)
-        var mLastClickTime = System.currentTimeMillis()
-
-        holder.itemView.setOnClickListener { view ->
-
-            val now = System.currentTimeMillis()
-            if (now - mLastClickTime < Constants.CLICK_TIME_INTERVAL) {
-                return@setOnClickListener
-            }
-            mLastClickTime = now
-            // passing data to the book activity
-            val intent = Intent(context, DetailActivity::class.java)
-            intent.putExtra(Constants.DISHES_DETAIL,dataList[position])
-            view.context.startActivity(intent)
+            /**
+             * Note that in kotlin, == checking on data classes compares all contents, but in Java,
+             * typically you'll implement Object#equals, and use it to compare object contents.
+             */
+            override fun areContentsTheSame(oldItem: DishesModel.Dishes, newItem: DishesModel.Dishes): Boolean =
+                oldItem == newItem
         }
-
     }
+      inner class MainViewHolder(parent :ViewGroup) : RecyclerView.ViewHolder(
+         LayoutInflater.from(parent.context).inflate(R.layout.item_card, parent, false)) {
 
-    override fun getItemCount(): Int {
-        return dataList.size
-    }
-}
+
+         var dishesName: TextView = itemView.findViewById(R.id.dishes_name)
+         val dishesImage: ImageView = itemView.findViewById(R.id.dishes_image)
+         var dishes : DishesModel.Dishes? = null
+
+
+         fun bindTo(dishes : DishesModel.Dishes?) {
+             this.dishes = dishes
+             dishesName.text = dishes?.Name
+
+             if(dishes?.Image != null) {
+                 val builder = Picasso.Builder(itemView.context)
+                 builder.downloader(OkHttp3Downloader(itemView.context))
+                 builder.build().load(dishes.Image)
+                     .placeholder(R.drawable.ic_launcher_background)
+                     .error(R.drawable.ic_launcher_background)
+                     .into(dishesImage)
+             }
+             var mLastClickTime = System.currentTimeMillis()
+             itemView.setOnClickListener { view ->
+                 //
+                 val now = System.currentTimeMillis()
+                 if (now - mLastClickTime < Constants.CLICK_TIME_INTERVAL) {
+                     return@setOnClickListener
+                 }
+                 mLastClickTime = now
+                 // passing data to the book activity
+                 val intent = Intent(itemView.context, DetailActivity::class.java)
+                 intent.putExtra(Constants.DISHES_DETAIL, dishes!!.DishesID)
+                 view.context.startActivity(intent)
+             }
+         }
+     }
+
+ }

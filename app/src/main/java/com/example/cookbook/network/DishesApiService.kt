@@ -9,8 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 interface DishesApiService {
 
-    @GET("mlist.json")
-    fun getDishes(): Observable<DishesModel.DishesReposnse>
+    @GET("api/recipe")
+    fun getDishes(): Observable<DishesModel.DishesResponse>
 
     companion object {
         fun create(): DishesApiService {
@@ -18,7 +18,7 @@ interface DishesApiService {
             val retrofit = Retrofit.Builder()
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .baseUrl("https://cookbook-21f51.firebaseio.com")
+                    .baseUrl("https://devwei.azurewebsites.net")
                     .build()
 
             return retrofit.create(DishesApiService::class.java)

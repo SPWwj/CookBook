@@ -1,97 +1,115 @@
 package com.example.cookbook.data.dao
 
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.*
 import com.example.cookbook.data.model.DishesModel
 
 
-
-
-
-
-
-
 @Dao
 abstract class DishesDao {
-    suspend fun insertDishes(dishes: DishesModel.Dishes) {
-        val steps = dishes.steps
-        val ingredients = dishes.ingredients
-        for (i in steps!!.indices) {
-            steps.get(i).dishesId=dishes.dishesId!!
-        }
-        for (i in ingredients!!.indices) {
-            ingredients.get(i).dishesId=dishes.dishesId!!
-        }
-        _insertDishes(dishes)
+//    suspend fun insertDishes(dishes: DishesModel.Dishes) {
+//        val steps = dishes.RecipeInstructions
+//        val ingredients = dishes.Ingredients
+//        for (i in steps!!.indices) {
+//            steps.get(i).DishesID=dishes.DishesID!!
+//        }
+//        for (i in ingredients!!.indices) {
+//            ingredients.get(i).DishesID=dishes.DishesID!!
+//        }
+//        _insertDishes(dishes)
+//
+//        _insertSteps(steps)
+//        _insertIngredients(ingredients)
+//    }
 
-        _insertSteps(steps)
-        _insertIngredients(ingredients)
+    suspend fun insertAllRecipes(recipeList: List<DishesModel.Recipe>) {
+
+        for(recipe in recipeList) {
+//            val steps = dishes.RecipeInstructions
+//            val ingredients = dishes.Ingredients
+//            for (i in steps!!.indices) {
+//                steps.get(i).DishesID = dishes.DishesID!!
+//            }
+//            for (i in ingredients!!.indices) {
+//                ingredients.get(i).DishesID = dishes.DishesID!!
+//            }
+            _insertSteps(recipe.RecipeInstructions)
+            _insertIngredients(recipe.Ingredients)
+            _insertDishes(recipe.Dishes)
+            _insertAuthors(recipe.Authors)
+            _insertTags(recipe.Tags)
+        }
     }
 
-    suspend fun insertAllDishes(dishesList: List<DishesModel.Dishes>) {
-
-        for(dishes in dishesList) {
-            val steps = dishes.steps
-            val ingredients = dishes.ingredients
-            for (i in steps!!.indices) {
-                steps.get(i).dishesId = dishes.dishesId!!
-            }
-            for (i in ingredients!!.indices) {
-                ingredients.get(i).dishesId = dishes.dishesId!!
-            }
-            _insertSteps(steps)
-            _insertIngredients(ingredients)
-            _insertDishes(dishes)
-        }
-    }
-
-    fun getDishes(id: Int): LiveData<DishesModel.Dishes> {
-        val dishes = _getDishes(id)
-        val steps = _getSteps(id)
-        val ingredients = _getIngredients(id)
-        dishes.value!!.steps=steps
-        dishes.value!!.ingredients=ingredients
-        return dishes
-    }
+//    fun getDishes(id: Int): LiveData<DishesModel.Recipe> {
+//        val dishes = _getDishes(id)
+//        val steps = _getSteps(id)
+//        val ingredients = _getIngredients(id)
+//        dishes.value!!.RecipeInstructions=steps
+//        dishes.value!!.Ingredients=ingredients
+//        return dishes
+//    }
 
 //    fun getAllDishes(): LiveData<List<DishesModel.Dishes>> {
 //
-//         val dishes = _getAllDishes()
-//         if (dishes.value == null ) return  dishes
-//         for (i in dishes.value!!.indices){
-//             val steps = _getSteps(dishes.value!![i].dishesId!!)
-//             val ingredients = _getIngredients(dishes.value!![i].dishesId!!)
+//         val Dishes = _getAllDishes()
+//         if (Dishes.value == null ) return  Dishes
+//         for (i in Dishes.value!!.indices){
+//             val RecipeInstructions = _getSteps(Dishes.value!![i].DishesID!!)
+//             val Ingredients = _getIngredients(Dishes.value!![i].DishesID!!)
 //
-//             dishes.value!![i].steps=steps
-//             dishes.value!![i].ingredients=ingredients
+//             Dishes.value!![i].RecipeInstructions=RecipeInstructions
+//             Dishes.value!![i].Ingredients=Ingredients
 //         }
-//         return dishes
+//         return Dishes
 //     }
 
 
-    @Query("SELECT * FROM Dishes")@Transaction
-    abstract fun getAllRecipe(): LiveData<List<DishesModel.Recipe>>
+    @Query("SELECT * FROM Dishes") @Transaction
+    abstract fun getAllRecipe(): DataSource.Factory<Int, DishesModel.Recipe>
+
+    @Query("SELECT * FROM Dishes where DishesID =:ID") @Transaction
+    abstract fun getRecipe(ID:Int ): LiveData<DishesModel.Recipe>
 
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun _insertDishes(dishes: DishesModel.Dishes)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun _insertSteps(steps: List<DishesModel.Step>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun _insertAuthors(authors: List<DishesModel.Author>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun _insertTags(tags: List<DishesModel.Tag>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun _insertSteps(recipeInstructions: List<DishesModel.RecipeInstruction>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun _insertIngredients(ingredients: List<DishesModel.Ingredient>)
 
-    @Query("SELECT * FROM Dishes")
-    abstract fun _getAllDishes(): LiveData<List<DishesModel.Dishes>>
+//    @Query("SELECT * FROM Dishes")
+//    abstract fun getAllDishes(): LiveData<List<DishesModel.Dishes>>
+    @Query("SELECT * FROM Dishes") @Transaction
+    abstract fun getAllDishes(): DataSource.Factory<Int, DishesModel.Dishes>
 
-    @Query("SELECT * FROM Dishes WHERE dishesId =:id")
-    abstract fun _getDishes(id: Int): LiveData<DishesModel.Dishes>
+    @Query("SELECT * FROM Dishes WHERE DishesID =:ID")
+    abstract fun getDishes(ID: Int): LiveData<DishesModel.Dishes>
 
-    @Query("SELECT * FROM Step WHERE dishesId =:id")
-    abstract fun _getSteps(id: Int): List<DishesModel.Step>
-    @Query("SELECT * FROM Ingredient WHERE dishesId =:id")
-    abstract fun _getIngredients(id: Int): List<DishesModel.Ingredient>
-    @Query("DELETE FROM dishes")
+    @Query("SELECT * FROM Dishes Where Favorite =:isFav") @Transaction
+    abstract fun getAllFav(isFav:Boolean): DataSource.Factory<Int, DishesModel.Dishes>
+
+    @Query("SELECT * FROM Dishes WHERE  Dishes.Name LIKE :searchStr OR (Dishes.DishesID IN (SELECT Ingredient.DishesID FROM Ingredient WHERE  Ingredient.Name LIKE :searchStr))")
+    abstract fun getSearchDishes(searchStr: String): DataSource.Factory<Int, DishesModel.Dishes>
+
+    @Query("SELECT * FROM RecipeInstruction WHERE DishesID =:ID")
+    abstract fun _getSteps(ID: Int): List<DishesModel.RecipeInstruction>
+    @Query("SELECT * FROM Ingredient WHERE DishesID =:ID")
+    abstract fun _getIngredients(ID: Int): List<DishesModel.Ingredient>
+
+    @Update
+    abstract suspend fun updateDishes(dishes: DishesModel.Dishes)
+
+    @Query("DELETE FROM Dishes")
     abstract suspend fun deleteAll()
 }

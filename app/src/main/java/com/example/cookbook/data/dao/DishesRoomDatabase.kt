@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  * This is the backend. The database. This used to be done by the OpenHelper.
  * The fact that this has very few comments emphasizes its coolness.
  */
-@Database(entities = [DishesModel.Dishes::class, DishesModel.Step::class, DishesModel.Ingredient::class], version = 1,exportSchema = false)
+@Database(entities = [DishesModel.Dishes::class, DishesModel.RecipeInstruction::class, DishesModel.Ingredient::class,DishesModel.Author::class,DishesModel.Tag::class], version = 1,exportSchema = false)
 abstract class DishesRoomDatabase : RoomDatabase() {
 
     abstract fun dishesDao(): DishesDao

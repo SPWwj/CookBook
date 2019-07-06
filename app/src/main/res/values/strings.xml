@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">CookBook</string>
+    <string name="app_name">糖尿病食谱</string>
+    <string name="dishes_image">食物图片</string>
+    <string name="dishes_cover_image">食物封面图片</string>
+    <string name="dishes_description">食物介绍</string>
+    <string name="dishes_tips">食物小贴士</string>
+    <string name="dishes_ingredients">需要食材</string>
+    <string name="dishes_instructions">烹饪步骤</string>
+    <string name="dishes_ingredient_image">食材图片</string>
+    <string name="search_string">搜索食材/食谱</string>
+    <string name="nav_fav">喜爱</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="loading_string">食谱加载中,请稍后...</string>
 </resources>
